@@ -1,0 +1,132 @@
+@import '~bootstrap/scss/bootstrap';
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+header.header {
+  width: 100vw;
+  height: 50px;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+div.appContainer {
+  @include make-container();
+  min-height: 100vh;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0;
+}
+
+form.form {
+  padding: 20px;
+  width: min(800px, 100vw);
+  box-shadow: $box-shadow-sm;
+  border-radius: $border-radius;
+  align-self: center;
+
+  fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+div.radioInputContainer {
+  text-align: center;
+
+  div {
+    padding: 5px;
+    border-radius: $border-radius;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+
+    input {
+      margin-right: 5px;
+    }
+  }
+}
+
+div.actionButtonsContainer {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+
+  button {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+}
+
+@keyframes fadeInKeyframes {
+  from {
+    opacity: 0;
+    filter: blur(5px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+div.blackScreen {
+  animation: 1s fadeInKeyframes ease;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: inherit;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+div.confirmModal {
+  width: min(100vw, 400px);
+  padding: 10px;
+  height: auto;
+  background: $white;
+  border-radius: $border-radius;
+}
+
+div.confirmModalHeader {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 10px;
+}
+
+@mixin dialog {
+  padding: 15px;
+  font-weight: $font-weight-bold;
+}
+
+div.warningDialog {
+  @include dialog();
+  color: $danger;
+}
+
+div.confirmDialog {
+  @include dialog();
+  color: $dark;
+}
+
+button.btn-danger,
+button.btn-primary {
+  svg {
+    fill: white;
+  }
+}
