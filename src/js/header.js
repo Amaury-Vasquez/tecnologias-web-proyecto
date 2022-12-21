@@ -18,9 +18,11 @@ export function createHeader() {
   `;
   routes.forEach(({ path, content }) => {
     const link = header.querySelector(`#${path}`);
+    const { pathname } = window.location;
+
+    if (pathname === `/${path}`) link.classList.add('nav-link-active');
     link.addEventListener('click', (e) => {
       e.preventDefault();
-      const { pathname } = window.location;
       const redirectPath = `/${path}`;
       if (pathname !== redirectPath) {
         if (pathname === '/registrar')
