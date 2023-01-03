@@ -47,23 +47,25 @@ export function generateConfirmScreen(onConfirm, warning = false) {
     </div>
   `;
 
-  const closeScreen = () =>
-    document.querySelector('#root').removeChild(confirmScreen);
+  // Funciones y elementos para gestionar respuesta del usuario
   const confirmButton = createActionButton(
     warning ? 'Borrar' : 'Guardar',
     warning ? 'danger' : 'primary',
     () => {
       onConfirm();
-      closeScreen();
     },
     warning ? DeleteFilled : SaveOutlined
   );
+  const closeScreen = () =>
+    document.querySelector('#root').removeChild(confirmScreen);
   const cancelButton = createActionButton(
     'Cancelar',
     'light',
     closeScreen,
     StopOutlined
   );
+
+  // Agregar botones a la pantalla de confirmacion
   const actionButtonsContainer = confirmScreen.querySelector('#actionButtons');
   actionButtonsContainer.appendChild(confirmButton);
   actionButtonsContainer.appendChild(cancelButton);
