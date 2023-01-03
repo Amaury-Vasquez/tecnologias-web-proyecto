@@ -1,7 +1,11 @@
 import '../scss/style.scss';
-import { createForm } from './form';
+import { createHomePage } from './home';
 import { createHeader } from './header';
 
-const root = document.querySelector('#root');
-root.appendChild(createHeader());
-root.appendChild(createForm());
+try {
+  const root = document.querySelector('#root');
+  root.appendChild(createHeader());
+  root.appendChild(createHomePage());
+} catch (e) {
+  console.error(e);
+}
