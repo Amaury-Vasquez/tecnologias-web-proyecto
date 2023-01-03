@@ -48,7 +48,7 @@ const confirmReset = (event) => {
   generateConfirmScreen(reset, true);
 };
 
-export function createForm() {
+function createForm() {
   const form = document.createElement('form');
   const genders = ['Masculino', 'Femenino', 'Otro'];
   form.classList.add('form');
@@ -144,4 +144,11 @@ export function createForm() {
   form.addEventListener('submit', getFormData);
   form.addEventListener('reset', confirmReset);
   return form;
+}
+
+export function createFormPage() {
+  const formPage = document.createElement('div');
+  formPage.classList.add('page');
+  formPage.appendChild(createForm());
+  return formPage;
 }
