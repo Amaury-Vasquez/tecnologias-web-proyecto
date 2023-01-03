@@ -1,13 +1,11 @@
-import { createForm } from './form';
+import { createFormPage } from './form';
 import { createHeader } from './header';
-
-const template = () => document.createElement('div');
-const a = () => document.createElement('h1');
+import { createHomePage } from './home';
 
 export const routes = [
-  { path: 'inicio', name: 'Inicio', content: template() },
-  { path: 'registrar', name: 'Registrar', content: createForm() },
-  { path: 'consulta', name: 'Consultar archivo', content: template() },
+  { path: 'inicio', name: 'Inicio', content: createHomePage() },
+  { path: 'registrar', name: 'Registrar', content: createFormPage() },
+  { path: 'consulta', name: 'Consultar archivo', content: createHomePage() },
 ];
 
 export const onRouteChange = (path, content) => {
@@ -17,3 +15,11 @@ export const onRouteChange = (path, content) => {
   root.appendChild(createHeader());
   root.appendChild(content);
 };
+
+export function addRouteClickEvent(element, path) {
+  element.addEventListener('click', (e) => {
+    e.preventDefault();
+    const index = routes.findIndex((route) => route.path === path);
+    onRouteChange(path, routes[index].content);
+  });
+}
