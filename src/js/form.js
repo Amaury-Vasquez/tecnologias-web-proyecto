@@ -1,6 +1,7 @@
-import { alcaldias, escuelas, estados, prioridad } from './formValues';
+import { validateData } from './validateData';
 import { generateConfirmScreen } from './confirmScreen';
 import { ClearOutlined, SendOutlined } from '@ant-design/icons-svg';
+import { alcaldias, escuelas, estados, prioridad } from './formValues';
 import {
   createTextInput,
   createRadioInputs,
@@ -9,26 +10,36 @@ import {
 import { renderIconDefinitionToSVGElement } from '@ant-design/icons-svg/es/helpers';
 
 const getFormData = (event) => {
-  event.preventDefault();
-  function sendData() {
+  if (event) event.preventDefault();
+  function getData() {
     const form = document.getElementById('formulario');
-    const inputIds = [
-      'boleta',
-      'curp',
-      'apellidoPaterno',
-      'apellidoMaterno',
-      'nombre',
-      'fechaNacimiento',
-    ];
-    const radios = document.querySelectorAll('input[name="genero"]');
-    radios.forEach((radio) => console.log(radio.checked, radio.value));
-    console.log(form);
-    return inputIds.map((id) => {
-      const input = form.querySelector(`#${id}`);
-      return input.value;
-    });
+    // Crea objeto donde se va a almacenar la informacion
+    const formData = {};
+
+    // Recolecta la informacion del formulario
+    const inputs = form.querySelectorAll(
+      'input[type="text"], input[type="date"], input[type="email"], input[type="tel"]'
+    );
+    inputs.forEach((input) => (formData[input.id] = input.value));
+    const setRadioValue = (name) => {
+      const radios = form.querySelectorAll(`input[name="${name}"]`);
+      const option = Array.from(radios).find((radio) => radio.checked);
+      formData[name] = option ? option.id : null;
+    };
+    setRadioValue('genero');
+    setRadioValue('prioridad');
+    const setSelectValue = (name) => {
+      const select = form.querySelector(`select[id="${name}"]`);
+      const value = select ? select.value : '';
+      formData[name] = value;
+    };
+    setSelectValue('estado');
+    setSelectValue('escuela');
+    setSelectValue('alcaldia');
+    return formData;
   }
-  generateConfirmScreen(sendData);
+  const data = getData();
+  const isValid = validateData(data);
 };
 
 const confirmReset = (event) => {
@@ -122,7 +133,7 @@ function createForm() {
         </div>
         ${createTextInput('promedio', 'Promedio', '7.0', 'col', 'text')}
       </div>
-      ${createRadioInputs('escom', 'Escom fue tu', prioridad)}
+      ${createRadioInputs('prioridad', 'Escom fue tu', prioridad)}
     </fieldset>
     <fieldset class="form-group p-3">
       <div class="row actionButtonsContainer">
