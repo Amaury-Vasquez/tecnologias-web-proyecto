@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "serve -s src/dist"
   },
   "devDependencies": {
     "prettier": "^2.8.1",
@@ -17,6 +18,7 @@
     "@ant-design/icons-svg": "^4.2.1",
     "@popperjs/core": "^2.11.6",
     "bootstrap": "^5.2.3",
-    "joi": "^17.7.0"
+    "joi": "^17.7.0",
+    "serve": "^14.1.2"
   }
 }
