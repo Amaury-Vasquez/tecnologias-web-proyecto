@@ -32,7 +32,7 @@ div.appContainer {
   padding: 20px;
 }
 
-div.page {
+@mixin templatePage() {
   margin: 0 auto;
   width: 100vw;
   min-height: calc(100vh - 50px);
@@ -40,7 +40,10 @@ div.page {
   padding: 20px;
   display: flex;
   justify-content: center;
+}
 
+div.page {
+  @include templatePage();
   article {
     width: min(1000px, 100vw);
     gap: 20px;
@@ -112,14 +115,6 @@ div.actionButtonsContainer {
   justify-content: center;
   gap: 10px;
   padding: 20px;
-
-  button {
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-  }
 }
 
 @keyframes fadeInKeyframes {
@@ -161,6 +156,14 @@ div.confirmModalHeader {
   padding: 10px;
 }
 
+div.loading {
+  width: 100%;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 @mixin dialog {
   padding: 15px;
   font-weight: $font-weight-bold;
@@ -176,8 +179,16 @@ div.confirmDialog {
   color: $dark;
 }
 
+a.btn-danger,
+a.btn-primary,
 button.btn-danger,
 button.btn-primary {
+  min-height: 50px;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   svg {
     fill: white;
   }
@@ -186,4 +197,109 @@ button.btn-primary {
 a.nav-link-active {
   color: $primary;
   font-weight: $font-weight-bold;
+}
+
+div.dataModal {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  border: 1px solid $gray-300;
+  box-shadow: $box-shadow-sm;
+  border-radius: $border-radius;
+  height: auto;
+  padding: 30px 50px;
+  background: $white;
+  width: min(100vw, 1200px);
+  overflow-y: auto;
+
+  @media screen and (max-width: 768px) and (min-width: 500px) {
+    width: 80%;
+    height: 90%;
+  }
+
+  @media screen and (max-width: 500px) {
+    width: 100%;
+    height: 90%;
+    padding: 15px 20px;
+  }
+}
+
+div.dataArticles {
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    gap: 30px;
+  }
+}
+
+h2.modalTitle {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: $primary;
+  text-align: center;
+}
+
+article.dataSection {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+
+  span {
+    text-align: center;
+    word-break: break-all;
+  }
+
+  h3 {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: $primary;
+    align-self: center;
+    text-transform: capitalize;
+  }
+}
+
+@mixin consultContent() {
+  width: min(600px, 100vw);
+  align-self: flex-start;
+  @include bordered();
+  display: flex;
+  flex-direction: column;
+}
+
+form.consultForm {
+  gap: 20px;
+  @include consultContent();
+}
+
+div.consultResult {
+  @include consultContent();
+  align-items: center;
+  gap: 10px;
+
+  h2,
+  h3 {
+    color: $primary;
+    font-weight: 500;
+  }
+  h2 {
+    font-size: 1.5em;
+  }
+
+  h3 {
+    font-size: 1.2em;
+  }
+
+  div.row {
+    width: 100%;
+    text-align: center;
+  }
 }

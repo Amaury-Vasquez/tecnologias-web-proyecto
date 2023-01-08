@@ -1,13 +1,13 @@
 import Joi from 'joi';
 
-const regexBoleta = /PE[0-9]{8}|[0-9]{10}/;
+const regexBoleta = /(PE|PP)[0-9]{8}|[0-9]{10}/;
 const regexCP = /[0-9]{5}/;
 const regexCurp = /[A-Z]{4}[0-9]{6}[A-Z]{6}([A-Z]|[0-9]){2}/;
 const regexFecha = /[0-9]{4}-[0-9]{2}-[0-9]{2}/;
 const regexPromedio = /[0-9]\.[0-9]/;
 const regexTelefono = /[0-9]{10}/;
 
-const formSchema = Joi.object({
+const identidadSchema = Joi.object({
   boleta: Joi.string().regex(regexBoleta).required(),
   curp: Joi.string().regex(regexCurp).required(),
   apellidoPaterno: Joi.string().required(),
@@ -15,6 +15,9 @@ const formSchema = Joi.object({
   nombre: Joi.string().required(),
   fechaNacimiento: Joi.string().regex(regexFecha).required(),
   genero: Joi.string().required(),
+});
+
+const contactoSchema = Joi.object({
   calle: Joi.string().required(),
   colonia: Joi.string().required(),
   alcaldia: Joi.string().required(),
@@ -23,10 +26,18 @@ const formSchema = Joi.object({
   email: Joi.string()
     .email({ tlds: { allow: false } })
     .required(),
+});
+
+const procedenciaSchema = Joi.object({
   escuela: Joi.string().required(),
   estado: Joi.string().required(),
   promedio: Joi.string().regex(regexPromedio).required(),
   prioridad: Joi.string().required(),
+});
+
+const consultaSchema = Joi.object({
+  boleta: Joi.string().regex(regexBoleta).required(),
+  curp: Joi.string().regex(regexCurp).required(),
 });
 
 function createErrorMessage(message) {
@@ -39,26 +50,29 @@ function createErrorMessage(message) {
   return 'Formato incorrecto';
 }
 
+function createErrorLabel(id, message) {
+  const label = document.createElement('label');
+  label.setAttribute('id', id);
+  label.classList.add('text-danger', 'fw-bold');
+  label.textContent = `*${createErrorMessage(message)}`;
+  return label;
+}
+
 function handleErrors(details) {
   details.forEach((detail) => {
     const { path, message } = detail;
-
     const key = path[0];
-    if (key === 'prioridad' || key === 'genero') {
-      return;
-    } else if (key === 'escuela' || key === 'estado' || key === 'alcaldia') {
+    const messageId = `error-message-${key}`;
+
+    if (key === 'estado' || key === 'prioridad' || key === 'genero') {
       return;
     } else {
       const input = document.querySelector(`#${key}`);
-      const messageId = `error-message-${key}`;
       if (!document.getElementById(messageId)) {
-        const errorMessage = document.createElement('label');
-        errorMessage.setAttribute('id', messageId);
-        errorMessage.classList.add('text-danger', 'fw-bold');
-        errorMessage.textContent = '*' + createErrorMessage(message);
+        const errorMessage = createErrorLabel(messageId, message);
         input.after(errorMessage);
         const onInputClick = () => {
-          errorMessage && errorMessage.remove();
+          errorMessage && errorMessage.remove(); // const error
           const selectedInput = document.getElementById(key);
           selectedInput.removeEventListener('focus', onInputClick);
         };
@@ -69,7 +83,29 @@ function handleErrors(details) {
 }
 
 export function validateData(data) {
-  const validate = formSchema.validate(data, { abortEarly: false });
+  const { identidad, contacto, procedencia } = data;
+  const validations = [];
+  validations.push(identidadSchema.validate(identidad, { abortEarly: false }));
+  validations.push(contactoSchema.validate(contacto, { abortEarly: false }));
+  validations.push(
+    procedenciaSchema.validate(procedencia, { abortEarly: false })
+  );
+  let errorExists = false;
+
+  validations.forEach((validation) => {
+    const { error } = validation;
+    if (error) {
+      console.error(error);
+      const { details } = validation.error;
+      handleErrors(details);
+      errorExists = true;
+    }
+  });
+  return !errorExists;
+}
+
+export function validateConsulta(data) {
+  const validate = consultaSchema.validate(data, { abortEarly: false });
   const { error } = validate;
   if (error) {
     console.error(error);

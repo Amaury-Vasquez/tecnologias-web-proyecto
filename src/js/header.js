@@ -1,5 +1,5 @@
 import { routes, onRouteChange } from './router';
-import { generateConfirmScreen } from './confirmScreen';
+import { generateWarningScreen } from './screens';
 
 export function createHeader() {
   const header = document.createElement('header');
@@ -24,11 +24,7 @@ export function createHeader() {
     link.addEventListener('click', (e) => {
       e.preventDefault();
       const redirectPath = `/${path}`;
-      if (pathname !== redirectPath) {
-        if (pathname === '/registrar')
-          generateConfirmScreen(() => onRouteChange(path, content), true);
-        else onRouteChange(path, content);
-      }
+      if (pathname !== redirectPath) onRouteChange(path, content);
     });
   });
   return header;

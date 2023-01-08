@@ -1,11 +1,12 @@
 import { createFormPage } from './form';
 import { createHeader } from './header';
 import { createHomePage } from './home';
+import { createConsultPage } from './consult';
 
 export const routes = [
   { path: 'inicio', name: 'Inicio', content: createHomePage() },
   { path: 'registrar', name: 'Registrar', content: createFormPage() },
-  { path: 'consulta', name: 'Consultar archivo', content: createHomePage() },
+  { path: 'consulta', name: 'Consultar archivo', content: createConsultPage() },
 ];
 
 export const onRouteChange = (path, content) => {
