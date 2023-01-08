@@ -1,45 +1,75 @@
+import { sendData } from './requests';
 import { validateData } from './validateData';
-import { generateConfirmScreen } from './confirmScreen';
 import { ClearOutlined, SendOutlined } from '@ant-design/icons-svg';
 import { alcaldias, escuelas, estados, prioridad } from './formValues';
+import {
+  generateWarningScreen,
+  generateSuccessScreen,
+  generateConfirmScreen,
+} from './screens';
 import {
   createTextInput,
   createRadioInputs,
   createSelectInput,
+  selectListener,
 } from './generateInput';
 import { renderIconDefinitionToSVGElement } from '@ant-design/icons-svg/es/helpers';
+
+export function getRadioValue(container, name) {
+  const radios = container.querySelectorAll(`input[name="${name}"]`);
+  const option = Array.from(radios).find((radio) => radio.checked);
+  return option ? option.id : null;
+}
 
 const getFormData = (event) => {
   if (event) event.preventDefault();
   function getData() {
     const form = document.getElementById('formulario');
-    // Crea objeto donde se va a almacenar la informacion
-    const formData = {};
+    // Recolecta la informacion de las secciones del formulario
+    function getSectionData(sectionId) {
+      const section = form.querySelector(`#${sectionId}`);
+      const inputs = section.querySelectorAll(
+        'input[type="text"], input[type="date"], input[type="email"], input[type="tel"]'
+      );
+      const data = {};
+      inputs.forEach((input) => (data[input.id] = input.value));
+      const setRadioValue = (name) => {
+        const option = getRadioValue(section, name);
+        if (option) data[name] = option;
+      };
+      setRadioValue('genero');
+      setRadioValue('prioridad');
+      const setSelectValue = (name) => {
+        const select = section.querySelector(`select[id="${name}"]`);
+        if (select && select.value !== 'Otro') data[name] = select.value;
+      };
+      setSelectValue('estado');
+      setSelectValue('escuela');
+      setSelectValue('alcaldia');
+      return data;
+    }
 
-    // Recolecta la informacion del formulario
-    const inputs = form.querySelectorAll(
-      'input[type="text"], input[type="date"], input[type="email"], input[type="tel"]'
-    );
-    inputs.forEach((input) => (formData[input.id] = input.value));
-    const setRadioValue = (name) => {
-      const radios = form.querySelectorAll(`input[name="${name}"]`);
-      const option = Array.from(radios).find((radio) => radio.checked);
-      formData[name] = option ? option.id : null;
+    const formData = {
+      identidad: getSectionData('identidad'),
+      contacto: getSectionData('contacto'),
+      procedencia: getSectionData('procedencia'),
     };
-    setRadioValue('genero');
-    setRadioValue('prioridad');
-    const setSelectValue = (name) => {
-      const select = form.querySelector(`select[id="${name}"]`);
-      const value = select ? select.value : '';
-      formData[name] = value;
-    };
-    setSelectValue('estado');
-    setSelectValue('escuela');
-    setSelectValue('alcaldia');
     return formData;
   }
-  const data = getData();
-  const isValid = validateData(data);
+  const formData = getData();
+  if (validateData(formData)) {
+    const onConfirm = async () => {
+      const succeed = await sendData(formData);
+      generateSuccessScreen(succeed);
+      if (succeed) {
+        const { identidad } = formData;
+        const { boleta, curp } = identidad;
+        const name = `${identidad.nombre} ${identidad.apellidoPaterno} ${identidad.apellidoMaterno}`;
+        sessionStorage.setItem('user', JSON.stringify({ boleta, curp, name }));
+      }
+    };
+    generateConfirmScreen(onConfirm, formData);
+  }
 };
 
 const confirmReset = (event) => {
@@ -47,16 +77,22 @@ const confirmReset = (event) => {
   const reset = () => {
     const form = document.getElementById('formulario');
     form
-      .querySelectorAll('input[type="text"]')
+      .querySelectorAll(
+        'input[type="text"], input[type="email"], input[type="tel"], input[type="date"]'
+      )
       .forEach((input) => (input.value = ''));
-    form
-      .querySelectorAll('input[type="date"]')
-      .forEach((input) => (input.value = ''));
-    form
-      .querySelectorAll('input[type="radio"]')
-      .forEach((radio) => (radio.checked = false));
+    const selects = form.querySelectorAll('select');
+    selects.forEach((select) => {
+      select.value = select.getElementsByTagName('option')[0].value;
+      const input = form.querySelector(`#input${select.id}parent`);
+      input && input.remove();
+    });
+    const labels = form.querySelectorAll('label');
+    labels.forEach((label) => {
+      if (label.classList.contains('text-danger')) label.remove();
+    });
   };
-  generateConfirmScreen(reset, true);
+  generateWarningScreen(reset);
 };
 
 function createForm() {
@@ -66,7 +102,7 @@ function createForm() {
   form.classList.add('border');
   form.setAttribute('id', 'formulario');
   form.innerHTML = `
-    <fieldset class="form-group p-3">
+    <fieldset class="form-group p-3" id="identidad">
       <legend class="w-fill"> Datos de Identidad</legend>
       <div class="row">
         ${createTextInput('boleta', 'No. Boleta', '2021630014', 'col', 'text')}
@@ -102,13 +138,11 @@ function createForm() {
         
       </div>
     </fieldset>
-    <fieldset class="form-group p-3">
-      <legend class="w-fill" > Datos de contacto </legend>
+    <fieldset class="form-group p-3" id="contacto">
+      <legend class="w-fill"> Datos de contacto </legend>
       ${createTextInput('calle', 'Calle', 'Calle 1', 'col', 'text')}
       ${createTextInput('colonia', 'Colonia', 'Colonia 1', 'col', 'text')}
-      <div class="col">
-        ${createSelectInput('alcaldia', 'Alcaldía', alcaldias)}
-      </div>
+      ${createSelectInput('alcaldia', 'Alcaldía', alcaldias)}
       <div class="row">
         ${createTextInput('telefono', 'Teléfono', '1234567890', 'col', 'tel')}
         ${createTextInput('cp', 'Código postal', '12345', 'col', 'text')}
@@ -122,15 +156,11 @@ function createForm() {
         )}
 
     </fieldset>
-    <fieldset class="form-group p-3">
-      <legend class="w-fill" > Datos de procedencia </legend>
-      <div class="col" id="contenedorescuelas">
+    <fieldset class="form-group p-3" id="procedencia">
+      <legend class="w-fill"> Datos de procedencia </legend>
         ${createSelectInput('escuela', 'Escuela de procedencia', escuelas)}
-      </div>
       <div class="row">
-        <div class="col" id="contenedorestados">
         ${createSelectInput('estado', 'Estado de procedencia', estados)}
-        </div>
         ${createTextInput('promedio', 'Promedio', '7.0', 'col', 'text')}
       </div>
       ${createRadioInputs('prioridad', 'Escom fue tu', prioridad)}
@@ -160,6 +190,12 @@ function createForm() {
 export function createFormPage() {
   const formPage = document.createElement('div');
   formPage.classList.add('page');
-  formPage.appendChild(createForm());
+  const form = createForm();
+  formPage.appendChild(form);
+  const selects = ['alcaldia', 'escuela'];
+  selects.forEach((id) => {
+    const input = form.querySelector(`select[id="${id}"]`);
+    input.addEventListener('change', selectListener);
+  });
   return formPage;
 }
