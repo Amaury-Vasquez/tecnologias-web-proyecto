@@ -15,6 +15,7 @@ export const alcaldias = [
   'Tláhuac',
   'Tlalpan',
   'Xochimilco',
+  'Otro',
 ];
 
 export const escuelas = [
