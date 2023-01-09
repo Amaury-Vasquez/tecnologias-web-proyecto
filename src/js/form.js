@@ -167,13 +167,13 @@ function createForm() {
     </fieldset>
     <fieldset class="form-group p-3">
       <div class="row actionButtonsContainer">
-        <button type="submit" class="btn btn-primary col"> 
+        <button type="submit" class="btn btn-primary col actionButton"> 
           Enviar datos 
           ${renderIconDefinitionToSVGElement(SendOutlined, {
             extraSVGAttrs: { fill: 'white', width: '1em', height: '1em' },
           })}
         </button>
-        <button id="resetButton" class="btn btn-danger col" type="reset" > 
+        <button id="resetButton" class="btn btn-danger col actionButton" type="reset" > 
           Limpiar datos 
           ${renderIconDefinitionToSVGElement(ClearOutlined, {
             extraSVGAttrs: { fill: 'white', width: '1em', height: '1em' },

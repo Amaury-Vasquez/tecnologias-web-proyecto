@@ -2,7 +2,7 @@ import { renderIconDefinitionToSVGElement } from '@ant-design/icons-svg/es/helpe
 
 export function createButton(buttonType, text, style, icon) {
   const button = document.createElement(buttonType);
-  button.classList.add('col', 'btn', `btn-${style}`);
+  button.classList.add('col', 'btn', `btn-${style}`, 'actionButton');
   button.innerHTML = `
     ${text}
     ${renderIconDefinitionToSVGElement(icon, {
