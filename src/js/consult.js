@@ -1,13 +1,17 @@
+import { consultData } from './requests';
 import { createTextInput } from './generateInput';
 import { validateConsulta } from './validateData';
-import { generateWarningScreen } from './screens';
+import {
+  generateLoadingScreen,
+  generateConsultScreen,
+  generateErrorScreen,
+} from './screens';
 import {
   createActionButton,
   createButton,
   appendActionButtons,
 } from './buttons';
 import { FilePdfOutlined } from '@ant-design/icons-svg';
-import img from '../../public/escom.png';
 
 function createConsultForm() {
   const form = document.createElement('form');
@@ -16,18 +20,32 @@ function createConsultForm() {
     <h2 class="modalTitle"> 
       Ingresa tus datos para consultar tu archivo
     </h2>
-    ${createTextInput('boleta', 'No. Boleta', '2021630014', 'col', 'text')}
-    ${createTextInput('curp', 'CURP', 'VAEA990601HOCSNM06', 'col', 'text')}
+    <div class="row" id="consultInputParent" >
+      ${createTextInput('curp', 'CURP', 'VAEA990601HOCSNM06', 'col', 'text')}
+    </div>
     <div class="row actionButtonsContainer" id="actionButtons">
     </div>
   `;
-  const onConfirm = (e) => {
+  const onConfirm = async (e) => {
     e.preventDefault();
-    const boleta = document.getElementById('boleta').value;
     const curp = document.getElementById('curp').value;
-    const isDataValid = validateConsulta({ boleta, curp });
+    const isDataValid = validateConsulta({ curp });
     if (isDataValid) {
-      console.log('Valid data');
+      const loadingScreen = generateLoadingScreen();
+      const data = await consultData(curp).then((res) => {
+        loadingScreen.remove();
+        return res;
+      });
+      if (Array.isArray(data)) generateErrorScreen();
+      else {
+        const name = `${data.nombre} ${data.apellido_paterno} ${data.apellido_materno}`;
+        const { laboratorio, fecha_examen, hora } = data;
+        sessionStorage.setItem(
+          'user',
+          JSON.stringify({ curp, name, laboratorio, fecha_examen, hora })
+        );
+        generateConsultScreen({ name }, () => window.location.reload());
+      }
     }
   };
   const submitButton = createActionButton(
@@ -43,10 +61,7 @@ function createConsultForm() {
 function createConsultResult(data) {
   const result = document.createElement('div');
   result.classList.add('consultResult');
-  const { name } = data;
-  const lab = '1201';
-  const fecha = '2021-06-01';
-  const horario = '10:00-12:00';
+  const { name, laboratorio, fecha_examen, hora } = data;
   result.innerHTML = `
     <h2> Asignación de examen diagnóstico </h2>
     <div class="row">
@@ -54,15 +69,15 @@ function createConsultResult(data) {
         <span> Alumno: ${name} </span>
       </div>
       <div class="col">
-        <span> Fecha de realización: ${fecha} </span>
+        <span> Fecha de realización: ${fecha_examen} </span>
       </div>
     </div>
     <div class="row">
       <div class="col">
-        <span> Laboratorio: ${lab} </span>
+        <span> Laboratorio: ${laboratorio} </span>
       </div>
       <div class="col">
-        <span> Horario: ${horario} </span>
+        <span> Horario: ${hora} </span>
       </div>
     </div>
   `;
@@ -82,8 +97,12 @@ function createConsultResult(data) {
     onConsult,
     FilePdfOutlined
   );
-  downloadButton.setAttribute('href', img);
-  downloadButton.setAttribute('download', `${name.replace(' ', '_')}`);
+  const { curp } = data;
+  downloadButton.setAttribute(
+    'href',
+    `http://localhost:5000/get_pdf.php?curp=${curp}`
+  );
+  downloadButton.setAttribute('download', `${name}.pdf`);
   appendActionButtons(result, [downloadButton, consultButton]);
   return result;
 }
@@ -92,7 +111,6 @@ export function createConsultPage() {
   const page = document.createElement('div');
   page.classList.add('page');
   const user = JSON.parse(sessionStorage.getItem('user'));
-  console.log('🖨️ ~ createConsultPage ~ user', user);
   if (user) {
     page.appendChild(createConsultResult(user));
   } else {

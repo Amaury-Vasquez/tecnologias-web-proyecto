@@ -4,7 +4,7 @@ const regexBoleta = /(PE|PP)[0-9]{8}|[0-9]{10}/;
 const regexCP = /[0-9]{5}/;
 const regexCurp = /[A-Z]{4}[0-9]{6}[A-Z]{6}([A-Z]|[0-9]){2}/;
 const regexFecha = /[0-9]{4}-[0-9]{2}-[0-9]{2}/;
-const regexPromedio = /[0-9]\.[0-9]/;
+const regexPromedio = /[0-9]\.([0-9]{2}|[0-9]{1})/;
 const regexTelefono = /[0-9]{10}/;
 
 const identidadSchema = Joi.object({
@@ -36,7 +36,6 @@ const procedenciaSchema = Joi.object({
 });
 
 const consultaSchema = Joi.object({
-  boleta: Joi.string().regex(regexBoleta).required(),
   curp: Joi.string().regex(regexCurp).required(),
 });
 

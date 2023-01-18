@@ -1,10 +1,10 @@
-import { onRouteChange, routes } from './router';
 import {
   DeleteFilled,
   StopOutlined,
   SaveOutlined,
   CheckCircleOutlined,
   FilePdfOutlined,
+  FileSearchOutlined,
 } from '@ant-design/icons-svg';
 import { createActionButton, appendActionButtons } from './buttons';
 
@@ -16,6 +16,84 @@ function createScreen(id, innerHTML) {
   successScreen.innerHTML = innerHTML;
   root.appendChild(successScreen);
   return successScreen;
+}
+
+export function generateLoadingScreen() {
+  const innerHTML = `
+    <div class="loadingScreen">
+      <div class="confirmModal">
+        <div class="confirmModalHeader d-flex justify-content-center">
+          <h5 class="modal-title">
+            Buscando tu informacion...
+          </h5>
+        </div>
+        <div class="loading loadingDialog d-flex justify-content-center">
+          <div class="spinner-border text-primary" role="status">
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  const loadingScreen = createScreen('loadingScreen', innerHTML);
+  return loadingScreen;
+}
+
+export function generateConsultScreen(data, onConfirm) {
+  const innerHTML = `
+    <div class="confirmModal">
+      <div class="confirmModalHeader d-flex justify-content-center">
+        <h5 class="modal-title">
+          Bienvenido de vuelta ${data.name}
+        </h5>
+      </div>
+      <div class="column d-flex justify-content-center"> 
+        <span> Tus datos fueron encontrados satisfactoriamente </span>
+      </div>
+      <div class="row actionButtonsContainer" id="actionButtons" >
+      </div>
+    <div/>
+  `;
+  const consultScreen = createScreen('consultScreen', innerHTML);
+  const viewButton = createActionButton(
+    'Ver datos',
+    'success',
+    () => {
+      consultScreen.remove();
+      onConfirm();
+    },
+    FileSearchOutlined
+  );
+  appendActionButtons(consultScreen.querySelector('#actionButtons'), [
+    viewButton,
+  ]);
+  return consultScreen;
+}
+
+export function generateErrorScreen() {
+  const innerHTML = `
+    <div class="confirmModal">
+      <div class="confirmModalHeader d-flex justify-content-center">
+        <h5 class="modal-title">
+          Error al consultar tu informacion
+        </h5>
+      </div>
+      <div class="errorDialog d-flex justify-content-center">
+        <span> No se encontró información </span>
+      </div>
+      <div class="row actionButtonsContainer" id="actionButtons">
+      </div>
+    </div>
+  `;
+  const errorScreen = createScreen('errorScreen', innerHTML);
+  const actionButtons = errorScreen.querySelector('#actionButtons');
+  const closeScreenButton = createActionButton(
+    'Intentar de nuevo',
+    'danger',
+    () => errorScreen.remove(),
+    FileSearchOutlined
+  );
+  appendActionButtons(actionButtons, [closeScreenButton]);
+  return errorScreen;
 }
 
 export function generateWarningScreen(onConfirm) {
@@ -92,12 +170,11 @@ export function generateSuccessScreen(succeed) {
     'primary',
     () => {
       window.location.assign('/consulta');
-      // onRouteChange('consultar', routes[2].content);
     },
     FilePdfOutlined
   );
   const closeScreenButton = createActionButton(
-    'Modificar datos',
+    'Cerrar pantalla',
     'light',
     () => successScreen.remove(),
     CheckCircleOutlined

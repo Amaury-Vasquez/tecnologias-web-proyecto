@@ -1,4 +1,4 @@
-import { sendData } from './requests';
+import { sendData, sendEmail } from './requests';
 import { validateData } from './validateData';
 import { ClearOutlined, SendOutlined } from '@ant-design/icons-svg';
 import { alcaldias, escuelas, estados, prioridad } from './formValues';
@@ -59,13 +59,26 @@ const getFormData = (event) => {
   const formData = getData();
   if (validateData(formData)) {
     const onConfirm = async () => {
-      const succeed = await sendData(formData);
-      generateSuccessScreen(succeed);
-      if (succeed) {
+      formData.identidad['genero'] = formData.identidad['genero'].charAt(0);
+      let data = {};
+      Object.keys(formData).forEach((key) => {
+        Object.keys(formData[key]).forEach((subKey) => {
+          data[subKey] = formData[key][subKey];
+        });
+      });
+      const response = await sendData(data);
+      generateSuccessScreen(response);
+      if (response) {
         const { identidad } = formData;
-        const { boleta, curp } = identidad;
+        const { curp } = identidad;
+        const { email } = data;
         const name = `${identidad.nombre} ${identidad.apellidoPaterno} ${identidad.apellidoMaterno}`;
-        sessionStorage.setItem('user', JSON.stringify({ boleta, curp, name }));
+        const { fecha_examen, laboratorio, hora } = response;
+        sessionStorage.setItem(
+          'user',
+          JSON.stringify({ curp, name, fecha_examen, laboratorio, hora })
+        );
+        await sendEmail({ email, curp, name });
       }
     };
     generateConfirmScreen(onConfirm, formData);
