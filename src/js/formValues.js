@@ -77,4 +77,4 @@ export const estados = [
   'Zacatecas',
 ];
 
-export const prioridad = ['Primera opción', 'Segunda opción', 'Tercera opción'];
+export const prioridad = ['Primera opcion', 'Segunda opcion', 'Tercera opcion'];
